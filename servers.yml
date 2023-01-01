@@ -47,3 +47,40 @@ Resources:
         FromPort: 0
         ToPort: 65535
         CidrIp: 0.0.0.0/0
+
+  WebAppLaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          apt-get update -y
+          apt-get install apache2 -y
+          systemctl start apache2.service
+          cd /var/www/html
+          echo "AWSWebApp Demo Web Server Up and Running!" > index.html
+      ImageId: ami-00ddb0e5626798373 #Depends on the region you intend to run the server or use custom one
+      KeyName: AWS-SSH-KEY #Remember to use the key available under Network& Security under EC2
+      SecurityGroups:
+      - Ref: WebServerSecGroup
+      InstanceType: t3.small
+      BlockDeviceMappings:
+      - DeviceName: "/dev/sdk"
+        Ebs:
+          VolumeSize: '10'
+
+  WebAppGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      MinSize: '1'
+      MaxSize: '3'
+      VPCZoneIdentifier:
+        - Fn::ImportValue: 
+            !Sub "${EnvironmentName}-PRIV-NETS"
+      LaunchConfigurationName:
+        Ref: WebAppLaunchConfig
+      HealthCheckGracePeriod: 60
+      HealthCheckType: ELB
+
+      # TargetGroupARNs:
+      # - Ref: WebAppTargetGroup

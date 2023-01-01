@@ -14,7 +14,7 @@ cd AWSWebApp
 cd AWSWebApp
 ./update.sh AWSWEBAPP-Network network.yml network-parameters.json aws-user-profile
 ```
-##The server stack is cross-referencing values from the Network stack e.g VPCID
+## The server stack is cross-referencing values from the Network stack e.g VPCID
 ### Creating the Server Stack
 ```
 cd AWSWebApp
